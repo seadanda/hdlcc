@@ -245,10 +245,21 @@ def runTestsForEnv(env, args):
     else:
         nose_args += _getDefaultTestByEnv(env)
 
+    # Make sure the simulator being tested is not already executable with
+    # the initial PATH
+    if env == 'msim':
+        assert os.system('vsim -version'), \
+               "ModelSim seems to be on the path already and this will fail tests"
+    elif env == 'ghdl':
+        assert os.system('ghdl --version'), \
+               "GHDL seems to be on the path already and this will fail tests"
+
     if env in TEST_ENVS and not _ON_WINDOWS:
         test_env = TEST_ENVS[env]
         test_env.update(
             {'HDLCC_SERVER_LOG_LEVEL' : args.log_level})
+        if 'MODELSIM' in test_env:
+            del test_env['MODELSIM']
 
         patch = mock.patch.dict('os.environ', test_env)
     else:

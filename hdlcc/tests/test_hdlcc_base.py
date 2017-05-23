@@ -301,10 +301,14 @@ with such.A("hdlcc project") as it:
             dependencies=[])
 
         project = StandaloneProjectBuilder()
-        project._config._sources = {}
-        for source in (target_source, direct_dependency, indirect_dependency,
-                       common_dependency):
-            project._config._sources[str(source)] = source
+        #  project._config._sources = {}
+        #  for source in (target_source, direct_dependency, indirect_dependency,
+        #                 common_dependency):
+        #      project._config._sources[str(source)] = source
+        #  project._config._sources = {}
+        project._config._addSourceFiles([target_source, direct_dependency,
+                                         indirect_dependency,
+                                         common_dependency])
         it.assertEqual(
             [common_dependency, indirect_dependency, direct_dependency],
             project.updateBuildSequenceCache(target_source))
@@ -331,9 +335,13 @@ with such.A("hdlcc project") as it:
             dependencies=[])
 
         project = StandaloneProjectBuilder()
-        project._config._sources = {}
-        for source in (target_source, direct_dependency, not_a_dependency):
-            project._config._sources[str(source)] = source
+        #  project._config._sources = {}
+        #  for source in (target_source, direct_dependency, not_a_dependency):
+        #      project._config._sources[str(source)] = source
+
+        project._config._addSourceFiles([target_source, direct_dependency,
+                                         direct_dependency,
+                                         not_a_dependency])
         it.assertEqual([direct_dependency],
                        project.updateBuildSequenceCache(target_source))
 
@@ -347,9 +355,11 @@ with such.A("hdlcc project") as it:
                            'library' : 'some_lib'}])
 
         project = StandaloneProjectBuilder()
-        project._config._sources = {}
-        for source in (target_source, ):
-            project._config._sources[str(source)] = source
+        #  project._config._sources = {}
+        #  for source in (target_source, ):
+        #      project._config._sources[str(source)] = source
+
+        project._config._addSourceFiles([target_source, ])
 
         it.assertEqual([], project.updateBuildSequenceCache(target_source))
 
@@ -362,9 +372,10 @@ with such.A("hdlcc project") as it:
             dependencies=[])
 
         project = StandaloneProjectBuilder()
-        project._config._sources = {}
-        for source in (target_source, ):
-            project._config._sources[str(source)] = source
+        #  project._config._sources = {}
+        #  for source in (target_source, ):
+        #      project._config._sources[str(source)] = source
+        project._config._addSourceFiles([target_source, ])
 
         it.assertEqual([], project.updateBuildSequenceCache(target_source))
 
@@ -385,9 +396,10 @@ with such.A("hdlcc project") as it:
                            'library' : 'some_lib'}])
 
         project = StandaloneProjectBuilder()
-        project._config._sources = {}
-        for source in (target_source, direct_dependency):
-            project._config._sources[str(source)] = source
+        project._config._addSourceFiles([target_source, direct_dependency])
+        #  project._config._sources = {}
+        #  for source in (target_source, direct_dependency):
+        #      project._config._sources[str(source)] = source
 
         it.assertEqual([direct_dependency, ],
                        project.updateBuildSequenceCache(target_source))
@@ -421,9 +433,11 @@ with such.A("hdlcc project") as it:
             side_effect=lambda x: messages.append(x)) # pylint: disable=unnecessary-lambda
 
         #  lambda message: messages += [message]
-        project._config._sources = {}
-        for source in (target_source, implementation_a, implementation_b):
-            project._config._sources[str(source)] = source
+        project._config._addSourceFiles([target_source, implementation_a,
+                                         implementation_b])
+        #  project._config._sources = {}
+        #  for source in (target_source, implementation_a, implementation_b):
+        #      project._config._sources[str(source)] = source
 
         project.updateBuildSequenceCache(target_source)
 

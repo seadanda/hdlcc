@@ -66,13 +66,8 @@ with such.A("hdlcc project with persistence") as it:
 
         it.PROJECT_FILE = p.join(BASE_PATH, it.BUILDER_NAME + '.prj')
 
-        #  StandaloneProjectBuilder.cleanProjectCache(it.PROJECT_FILE)
         utils.cleanProjectCache(it.PROJECT_FILE)
 
-        it.original_env = os.environ.copy()
-        it.builder_env = os.environ.copy()
-
-        #  utils.addToPath(it.BUILDER_PATH)
         it.patch = mock.patch.dict(
             'os.environ',
             {'PATH' : os.pathsep.join([it.BUILDER_PATH, os.environ['PATH']])})
