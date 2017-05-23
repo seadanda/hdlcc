@@ -110,6 +110,7 @@ class ConfigParser(object):
             self._logger.info("No configuration file given, using dummy")
 
         self._sources = {}
+        self._design_units = {}
         self._timestamp = 0
         self._lock = Lock()
 
@@ -118,7 +119,7 @@ class ConfigParser(object):
             return False
 
         for attr in ('_parms', '_list_parms', '_single_value_parms',
-                     '_sources', 'filename'):
+                     '_sources', '_design_units', 'filename'):
             if not hasattr(other, attr):
                 return False
             if getattr(self, attr) != getattr(other, attr):
@@ -197,8 +198,21 @@ class ConfigParser(object):
                  'library' : library,
                  'flags' : vunit_flags if path.endswith('.vhd') else []})
 
-        for source in getSourceFileObjects(_source_file_args):
+        self._addSourceFiles(getSourceFileObjects(_source_file_args))
+
+    def _addSourceFiles(self, sources):
+        """
+        Adds a source file to the sources list and to the design units
+        helper map
+        """
+        for source in sources:
             self._sources[source.filename] = source
+            # Add a reference to this source to our design units key map
+            for design_unit in source.getDesignUnits():
+                key = (source.library, design_unit['name'])
+                if key not in self._design_units:
+                    self._design_units[key] = []
+                self._design_units[key].append(source)
 
     def __repr__(self):
         _repr = ["ConfigParser('%s'):" % self.filename]
@@ -243,7 +257,7 @@ class ConfigParser(object):
         obj = super(ConfigParser, cls).__new__(cls)
 
         # pylint: disable=protected-access
-        sources = state.pop('_sources')
+        sources_state = state.pop('_sources')
         obj.filename = state.pop('filename', None)
         obj._timestamp = state.pop('_timestamp')
         obj._lock = Lock()
@@ -252,13 +266,18 @@ class ConfigParser(object):
         obj._parms['batch_build_flags'] = state['_parms']['batch_build_flags']
         obj._parms['single_build_flags'] = state['_parms']['single_build_flags']
         obj._parms['global_build_flags'] = state['_parms']['global_build_flags']
-
         obj._sources = {}
-        for path, src_state in sources.items():
+        obj._design_units = {}
+
+        sources = []
+        for path, src_state in sources_state.items():
             if src_state['filetype'] == 'vhdl':
-                obj._sources[path] = VhdlParser.recoverFromState(src_state)
+                source = VhdlParser.recoverFromState(src_state)
             else:
-                obj._sources[path] = VerilogParser.recoverFromState(src_state)
+                source = VerilogParser.recoverFromState(src_state)
+            sources.append(source)
+
+        obj._addSourceFiles(sources)
 
         # pylint: enable=protected-access
 
@@ -307,8 +326,9 @@ class ConfigParser(object):
         # many files. The multiprocessing.Pool class used to hang, so
         # watch out if this behaves well enough to be used
         self._logger.info("Adding %d sources", len(source_build_list))
-        for source in getSourceFileObjects(source_build_list):
-            self._sources[source.filename] = source
+        self._addSourceFiles(getSourceFileObjects(source_build_list))
+        #  for source in getSourceFileObjects(source_build_list):
+        #      self._sources[source.filename] = source
 
         self._cleanUpSourcesList(source_path_list)
 
@@ -576,15 +596,29 @@ class ConfigParser(object):
         return p.abspath(path) in self._sources.keys()
 
     def findSourcesByDesignUnit(self, unit, library='work'):
-        sources = []
-        for source in self._sources.values():
-            if source.library == library and unit in [x['name'] for x in
-                                                      source.getDesignUnits()]:
-                sources += [source]
-        if not sources:
+        self._logger.fatal("Searching the NEW way...")
+        matches = []
+        key = (library, unit)
+        if key in self._design_units:
+            for source in self._design_units[key]:
+                matches.append(source)
+
+        if not matches:
             self._logger.warning("No source file defining '%s.%s'",
                                  library, unit)
-        return sources
+        return matches
+
+    #  def findSourcesByDesignUnit(self, unit, library='work'):
+    #      self._logger.fatal("Searching the old way...")
+    #      sources = []
+    #      for source in self._sources.values():
+    #          if source.library == library and unit in [x['name'] for x in
+    #                                                    source.getDesignUnits()]:
+    #              sources += [source]
+    #      if not sources:
+    #          self._logger.warning("No source file defining '%s.%s'",
+    #                               library, unit)
+    #      return sources
 
     def discoverSourceDependencies(self, unit, library):
         """
