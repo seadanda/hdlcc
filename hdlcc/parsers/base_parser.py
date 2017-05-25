@@ -44,7 +44,7 @@ class BaseSourceFile(object):  # pylint:disable=too-many-instance-attributes
         """
 
     def __init__(self, filename, library='work', flags=None):
-        self.filename = p.normpath(filename)
+        self.filename = p.realpath(filename)
         self.library = library
         self.flags = flags if flags is not None else []
         self._cache = {}
@@ -54,15 +54,12 @@ class BaseSourceFile(object):  # pylint:disable=too-many-instance-attributes
 
         self._prev = None
 
-        self.abspath = p.abspath(filename)
-
     def getState(self):
         """
         Gets a dict that describes the current state of this object
         """
         state = {
             'filename' : self.filename,
-            'abspath' : self.abspath,
             'library' : self.library,
             'flags' : self.flags,
             '_cache' : self._cache,
@@ -79,7 +76,6 @@ class BaseSourceFile(object):  # pylint:disable=too-many-instance-attributes
         # pylint: disable=protected-access
         obj = super(BaseSourceFile, cls).__new__(cls)
         obj.filename = state['filename']
-        obj.abspath = state['abspath']
         obj.library = state['library']
         obj.flags = state['flags']
         obj._cache = state['_cache']
@@ -97,7 +93,7 @@ class BaseSourceFile(object):  # pylint:disable=too-many-instance-attributes
         if not isinstance(other, type(self)):
             return False
 
-        for attr in ('filename', 'library', 'flags', 'filetype', 'abspath'):
+        for attr in ('filename', 'library', 'flags', 'filetype'):
             if not hasattr(other, attr):  # pragma: no cover
                 return False
             if getattr(self, attr) != getattr(other, attr):
@@ -110,7 +106,7 @@ class BaseSourceFile(object):  # pylint:disable=too-many-instance-attributes
 
     def __repr__(self):
         return "BaseSourceFile('%s', library='%s', flags=%s)" % \
-                (self.abspath, self.library, self.flags)
+                (self.filename, self.library, self.flags)
 
     def __str__(self):
         return "[%s] %s" % (self.library, self.filename)

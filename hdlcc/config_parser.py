@@ -411,9 +411,9 @@ class ConfigParser(object):
         Removes sources we had found earlier and leave only the ones
         whose path are found in the 'sources' argument
         """
-
         rm_list = []
         for path in self._sources:
+            path = p.realpath(path)
             if path not in sources:
                 self._logger.warning("Removing '%s' because it has been removed "
                                      "from the config file", path)
@@ -467,14 +467,15 @@ class ConfigParser(object):
         """
         Normalizes and handles absolute/relative paths
         """
-        source_path = p.normpath(p.expanduser(path))
-        # If the path to the source file was not absolute, we assume
-        # it was relative to the config file base path
-        if not p.isabs(source_path):
-            fname_base_dir = p.dirname(p.abspath(self.filename))
-            source_path = p.join(fname_base_dir, source_path)
+        return p.realpath(path)
+        #  source_path = p.realpath(path)
+        #  # If the path to the source file was not absolute, we assume
+        #  # it was relative to the config file base path
+        #  if not p.isabs(source_path):
+        #      fname_base_dir = p.dirname(p.abspath(self.filename))
+        #      source_path = p.join(fname_base_dir, source_path)
 
-        return source_path
+        #  return source_path
 
     def _handleParsedSource(self, library, path, flags):
         """
@@ -491,9 +492,10 @@ class ConfigParser(object):
         Checks if the source with the given parameters should be
         created/updated
         """
+        source_path = p.realpath(source_path)
         # If the path can't be found, just add it
         if source_path not in self._sources:
-            return  True
+            return True
 
         source = self._sources[source_path]
 
@@ -570,7 +572,7 @@ class ConfigParser(object):
         if not self.hasSource(path):
             return flags
 
-        return flags + self._sources[p.abspath(path)].flags
+        return flags + self._sources[p.realpath(path)].flags
 
     def getSources(self):
         """
@@ -584,7 +586,7 @@ class ConfigParser(object):
         Returns a source object given its path
         """
         self._parseIfNeeded()
-        return self._sources[p.abspath(path)]
+        return self._sources[p.realpath(path)]
 
     def hasSource(self, path):
         """
@@ -593,7 +595,7 @@ class ConfigParser(object):
         self._parseIfNeeded()
         if self.filename is None:
             return True
-        return p.abspath(path) in self._sources.keys()
+        return p.realpath(path) in self._sources.keys()
 
     def findSourcesByDesignUnit(self, unit, library='work'):
         self._logger.fatal("Searching the NEW way...")
