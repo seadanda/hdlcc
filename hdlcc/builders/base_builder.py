@@ -337,13 +337,13 @@ class BaseBuilder(object):
                                source.filetype)
             return [], []
 
-        if source.abspath not in self._build_info_cache.keys():
-            self._build_info_cache[source.abspath] = {
+        if source.filename not in self._build_info_cache.keys():
+            self._build_info_cache[source.filename ] = {
                 'compile_time' : 0,
                 'records' : [],
                 'rebuilds' : []}
 
-        cached_info = self._build_info_cache[source.abspath]
+        cached_info = self._build_info_cache[source.filename ]
 
         build = False
         if forced:
