@@ -419,6 +419,8 @@ class ConfigParser(object):
                                      "from the config file", path)
                 rm_list += [path]
 
+        # TODO: We should clean up other caches when removing the original
+        # sources
         for rm_path in rm_list:
             del self._sources[rm_path]
 

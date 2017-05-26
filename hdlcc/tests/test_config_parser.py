@@ -371,8 +371,11 @@ with such.A('config parser object') as it:
             return result
 
         @it.has_setup
-        @mock.patch('hdlcc.config_parser.foundVunit', lambda: False)
         def setup():
+            it.no_vunit = mock.patch('hdlcc.config_parser.foundVunit',
+                                     lambda: False)
+            it.no_vunit.start()
+
             it.project_filename = 'test.prj'
             it.lib_path = p.join(TEST_SUPPORT_PATH, 'vim-hdl-examples')
             it.sources = [
@@ -388,6 +391,7 @@ with such.A('config parser object') as it:
         @it.has_teardown
         def teardown():
             os.remove(it.project_filename)
+            it.no_vunit.stop()
 
         @it.should("Find only the sources given then the extra source")
         def test_01():
