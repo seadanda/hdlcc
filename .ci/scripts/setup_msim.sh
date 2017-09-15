@@ -24,18 +24,16 @@ CACHE_DIR="${HOME}/cache/"
 MSIM_INSTALLER="${CACHE_DIR}/modelsim.run"
 INSTALLATION_DIR="${HOME}/builders/msim/"
 
-mkdir -p ${CACHE_DIR}
-CWD=$(pwd)
-# cd ${CACHE_DIR}
+mkdir -p "${CACHE_DIR}"
 
 if [ ! -f "${MSIM_INSTALLER}" ]; then
-  wget ${URL} -O ${MSIM_INSTALLER}
-  chmod +x ${MSIM_INSTALLER}
+  wget ${URL} -O "${MSIM_INSTALLER}" -nv
+  chmod +x "${MSIM_INSTALLER}"
   ${MSIM_INSTALLER} --help
 fi
 
 if [ ! -d "${INSTALLATION_DIR}" ]; then
-  mkdir -p ${INSTALLATION_DIR}
+  mkdir -p "${INSTALLATION_DIR}"
   ${MSIM_INSTALLER} --mode unattended \
     --modelsim_edition modelsim_ase \
     --installdir "${INSTALLATION_DIR}"
@@ -45,4 +43,3 @@ fi
 # ldd ${INSTALLATION_DIR}/modelsim_ase/linux/vcom
 # ${INSTALLATION_DIR}/modelsim_ase/linuxaloem/vcom -version
 
-cd "${CWD}"

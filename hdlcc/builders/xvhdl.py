@@ -120,7 +120,8 @@ class XVHDL(BaseBuilder):
         if library in self._added_libraries:
             return
 
-        self._added_libraries.append(library)
+        if library not in self._added_libraries:
+            self._added_libraries.append(library)
 
         with open(self._xvhdlini, mode='w') as fd:
             content = '\n'.join(
