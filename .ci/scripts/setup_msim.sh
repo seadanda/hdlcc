@@ -26,7 +26,7 @@ INSTALLATION_DIR="${HOME}/builders/msim"
 
 mkdir -p "${CACHE_DIR}/"
 
-"${INSTALLATION_DIR}/modelsim_ase/bin/vsim" -version
+"${INSTALLATION_DIR}/modelsim_ase/linuxaloem/vsim" -version
 ERROR=$?
 
 if [ "${ERROR}" != "0" ]; then
@@ -41,10 +41,8 @@ if [ "${ERROR}" != "0" ]; then
     --modelsim_edition modelsim_ase \
     --installdir "${INSTALLATION_DIR}/"
 
-  find "${INSTALLATION_DIR}"
-  stat "${INSTALLATION_DIR}/modelsim_ase/bin/vsim"
   set -e
-  "${INSTALLATION_DIR}/modelsim_ase/bin/vsim" -version
+  "${INSTALLATION_DIR}/modelsim_ase/linuxaloem/vsim" -c -do 'quit -f'
   set +e
 fi
 
