@@ -20,26 +20,35 @@ set -x
 set +e
 
 URL=http://download.altera.com/akdlm/software/acdsinst/15.1/185/ib_installers/ModelSimSetup-15.1.0.185-linux.run
-CACHE_DIR="${HOME}/cache/"
+CACHE_DIR="${HOME}/cache"
 MSIM_INSTALLER="${CACHE_DIR}/modelsim.run"
-INSTALLATION_DIR="${HOME}/builders/msim/"
+INSTALLATION_DIR="${HOME}/builders/msim"
 
-mkdir -p "${CACHE_DIR}"
+mkdir -p "${CACHE_DIR}/"
 
-if [ ! -f "${MSIM_INSTALLER}" ]; then
-  wget ${URL} -O "${MSIM_INSTALLER}" -nv
-  chmod +x "${MSIM_INSTALLER}"
-  ${MSIM_INSTALLER} --help
-fi
+"${INSTALLATION_DIR}/modelsim_ase/bin/vsim" -version
+ERROR=$?
 
-if [ ! -d "${INSTALLATION_DIR}" ]; then
-  mkdir -p "${INSTALLATION_DIR}"
+if [ "${ERROR}" != "0" ]; then
+  if [ ! -f "${MSIM_INSTALLER}" ]; then
+    wget ${URL} -O "${MSIM_INSTALLER}" -nv
+    chmod +x "${MSIM_INSTALLER}"
+    ${MSIM_INSTALLER} --help
+  fi
+
+  mkdir -p "${INSTALLATION_DIR}/"
   ${MSIM_INSTALLER} --mode unattended \
     --modelsim_edition modelsim_ase \
-    --installdir "${INSTALLATION_DIR}"
+    --installdir "${INSTALLATION_DIR}/"
+
+  find "${INSTALLATION_DIR}"
+  stat "${INSTALLATION_DIR}/modelsim_ase/bin/vsim"
+  set -e
+  "${INSTALLATION_DIR}/modelsim_ase/bin/vsim" -version
+  set +e
 fi
 
-# uname -a
-# ldd ${INSTALLATION_DIR}/modelsim_ase/linux/vcom
-# ${INSTALLATION_DIR}/modelsim_ase/linuxaloem/vcom -version
+  # uname -a
+  # ldd ${INSTALLATION_DIR}/modelsim_ase/linuxaloem/vcom
+  # ${INSTALLATION_DIR}/modelsim_ase/linuxaloem/vcom -version
 

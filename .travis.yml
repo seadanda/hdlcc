@@ -21,10 +21,10 @@ python:
 env:
   matrix:
     - BUILDER=msim
-    - BUILDER=ghdl
-    - BUILDER=fallback
-    - BUILDER=standalone
-    - BUILDER=xvhdl
+    # - BUILDER=ghdl
+    # - BUILDER=fallback
+    # - BUILDER=standalone
+    # - BUILDER=xvhdl
 
 before_install:
   - if [ "$BUILDER" == "msim" ]; then
